@@ -1,0 +1,66 @@
+---
+title: "Replicating the Simulations of Zou (2004)"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Replicating the Simulations of Zou (2004)}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(ReplicateModifiedPoisson)
+```
+
+```{r scratch-work}
+## Constant definitions ----------------------------------------------
+
+probability_exposed <- 0.5
+probability_stratum_1_given_exposed <- 0.6
+probability_stratum_1_given_unexposed <- 0.4
+risk_given_unexposed_stratum_2 <- 0.2
+
+
+## Scratch -----------------------------------------------------------
+
+data <- simulate_data(
+  500,
+  probability_exposed,
+  probability_stratum_1_given_exposed,
+  probability_stratum_1_given_unexposed,
+  risk_given_unexposed_stratum_2,
+  relative_risk_exposed = 2,
+  relative_risk_stratum_1 = 1.5
+)
+
+run_mantel_haenszel(
+  data$exposed,
+  data$outcome,
+  data$stratum
+)
+
+run_modified_poisson_glm(
+  outcome ~ exposed + stratum, data = data, id = data$id
+)
+
+res <- glm(outcome ~ exposed + stratum, data = data)
+confint(res)
+suppressMessages(confint(res))
+
+run_poisson_glm <- function(model_formula, data) {
+  fit <- glm(model_formula, data = data, family = poisson)
+  list(
+    est = exp(coef(fit)[[2]]),
+    ci = suppressMessages(exp(unname(confint(fit)[2, ])))
+  )
+}
+run_poisson_glm(outcome ~ exposed + stratum, data = data)
+
+run_log_binomial_glm(outcome ~ exposed + stratum, data = data)
+```

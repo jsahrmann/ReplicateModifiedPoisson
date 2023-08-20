@@ -15,3 +15,7 @@ Imports:
     geepack,
     metafor,
     stats
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
