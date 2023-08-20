@@ -1,3 +1,41 @@
+#' Fit a log-binomial generalized linear model estimating the risk ratio associated with an exposure/treatment
+#'
+#' @param model_formula An R formula specifying the model.  The
+#'   exposure/treatment of interest should be the first term on the
+#'   right-hand side.  (An intercept is assumed.)
+#' @param data The data on which to fit the model.
+#'
+#' @return A list with elements `est` containing the estimated risk
+#'   ratio and `ci` containing the limits of the 95% confidence
+#'   interval.
+#' @export
+#'
+#' @examples
+#' probability_exposed <- 0.5
+#' probability_stratum_1_given_exposed <- 0.6
+#' probability_stratum_1_given_unexposed <- 0.4
+#' risk_given_unexposed_stratum_2 <- 0.2
+#' sim_data <- simulate_data(
+#'   n = 100,
+#'   probability_exposed,
+#'   probability_stratum_1_given_exposed,
+#'   probability_stratum_1_given_unexposed,
+#'   risk_given_unexposed_stratum_2 = 0.2,
+#'   relative_risk_exposed = 2,
+#'   relative_risk_stratum_1 = 1.5
+#' )
+#' run_log_binomial_glm(
+#'   outcome ~ exposed + stratum, data = sim_data
+#' )
+run_log_binomial_glm <- function(model_formula, data) {
+  fit <- glm(
+    model_formula, data = data, family = binomial(link = log))
+  list(
+    est = exp(coef(fit)[[2]]),
+    ci = suppressMessages(exp(unname(confint(fit)[2, ])))
+  )
+}
+
 #' Run the Mantel-Haenszel procedure estimating the risk ratio associated with a (potentially stratified) exposure/treatment
 #'
 #' @param exposure A vector of exposure/treatment indicators.  Assumes
@@ -81,8 +119,8 @@ run_mantel_haenszel <- function(
 #' @param id A vector of observation identifiers.
 #'
 #' @return A list with elements `est` containing the estimated risk
-#'   ratio and `ci` containing the limits of the 95% conf_level)%
-#'   confidence interval.
+#'   ratio and `ci` containing the limits of the 95% confidence
+#'   interval.
 #' @export
 #'
 #' @examples
@@ -112,5 +150,42 @@ run_modified_poisson_glm <- function(model_formula, data, id) {
     # See https://stackoverflow.com/a/76463612 for why we use
     # `confint.default` here.
     ci = exp(unname(confint.default(fit)[2, ]))
+  )
+}
+
+#' Fit a Poisson generalized linear model estimating the risk ratio associated with an exposure/treatment
+#'
+#' @param model_formula An R formula specifying the model.  The
+#'   exposure/treatment of interest should be the first term on the
+#'   right-hand side.  (An intercept is assumed.)
+#' @param data The data on which to fit the model.
+#'
+#' @return A list with elements `est` containing the estimated risk
+#'   ratio and `ci` containing the limits of the 95% confidence
+#'   interval.
+#' @export
+#'
+#' @examples
+#' probability_exposed <- 0.5
+#' probability_stratum_1_given_exposed <- 0.6
+#' probability_stratum_1_given_unexposed <- 0.4
+#' risk_given_unexposed_stratum_2 <- 0.2
+#' sim_data <- simulate_data(
+#'   n = 100,
+#'   probability_exposed,
+#'   probability_stratum_1_given_exposed,
+#'   probability_stratum_1_given_unexposed,
+#'   risk_given_unexposed_stratum_2 = 0.2,
+#'   relative_risk_exposed = 2,
+#'   relative_risk_stratum_1 = 1.5
+#' )
+#' run_poisson_glm(
+#'   outcome ~ exposed + stratum, data = sim_data
+#' )
+run_poisson_glm <- function(model_formula, data) {
+  fit <- glm(model_formula, data = data, family = poisson)
+  list(
+    est = exp(coef(fit)[[2]]),
+    ci = suppressMessages(exp(unname(confint(fit)[2, ])))
   )
 }
