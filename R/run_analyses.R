@@ -71,3 +71,46 @@ run_mantel_haenszel <- function(
     ci = exp(c(result$ci.lb, result$ci.ub))
   )
 }
+
+#' Fit a modified Poisson generalized linear model estimating the risk ratio associated with an exposure/treatment
+#'
+#' @param model_formula An R formula specifying the model.  The
+#'   exposure/treatment of interest should be the first term on the
+#'   right-hand side.  (An intercept is assumed.)
+#' @param data The data on which to fit the model.
+#' @param id A vector of observation identifiers.
+#'
+#' @return A list with elements `est` containing the estimated risk
+#'   ratio and `ci` containing the limits of the 95% conf_level)%
+#'   confidence interval.
+#' @export
+#'
+#' @examples
+#' probability_exposed <- 0.5
+#' probability_stratum_1_given_exposed <- 0.6
+#' probability_stratum_1_given_unexposed <- 0.4
+#' risk_given_unexposed_stratum_2 <- 0.2
+#' sim_data <- simulate_data(
+#'   n = 100,
+#'   probability_exposed,
+#'   probability_stratum_1_given_exposed,
+#'   probability_stratum_1_given_unexposed,
+#'   risk_given_unexposed_stratum_2 = 0.2,
+#'   relative_risk_exposed = 2,
+#'   relative_risk_stratum_1 = 1.5
+#' )
+#' run_modified_poisson_glm(
+#'   outcome ~ exposed + stratum, data = sim_data, id = sim_data$id
+#' )
+run_modified_poisson_glm <- function(model_formula, data, id) {
+  fit <- geepack::geeglm(
+    model_formula, data = data,
+    family = poisson, id = id, corstr = "exchangeable"
+  )
+  list(
+    est = exp(coef(fit)[[2]]),
+    # See https://stackoverflow.com/a/76463612 for why we use
+    # `confint.default` here.
+    ci = exp(unname(confint.default(fit)[2, ]))
+  )
+}
