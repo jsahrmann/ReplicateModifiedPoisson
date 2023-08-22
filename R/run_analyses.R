@@ -28,11 +28,11 @@
 #'   outcome ~ exposed + stratum, data = sim_data
 #' )
 run_log_binomial_glm <- function(model_formula, data) {
-  fit <- glm(
-    model_formula, data = data, family = binomial(link = log))
+  fit <- stats::glm(
+    model_formula, data = data, family = stats::binomial(link = log))
   list(
     est = exp(coef(fit)[[2]]),
-    ci = suppressMessages(exp(unname(confint(fit)[2, ])))
+    ci = suppressMessages(exp(unname(stats::confint(fit)[2, ])))
   )
 }
 
@@ -183,9 +183,10 @@ run_modified_poisson_glm <- function(model_formula, data, id) {
 #'   outcome ~ exposed + stratum, data = sim_data
 #' )
 run_poisson_glm <- function(model_formula, data) {
-  fit <- glm(model_formula, data = data, family = poisson)
+  fit <- stats::glm(
+    model_formula, data = data, family = stats::poisson)
   list(
     est = exp(coef(fit)[[2]]),
-    ci = suppressMessages(exp(unname(confint(fit)[2, ])))
+    ci = suppressMessages(exp(unname(stats::confint(fit)[2, ])))
   )
 }
