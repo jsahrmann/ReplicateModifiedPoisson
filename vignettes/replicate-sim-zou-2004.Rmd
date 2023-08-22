@@ -63,4 +63,97 @@ run_poisson_glm <- function(model_formula, data) {
 run_poisson_glm(outcome ~ exposed + stratum, data = data)
 
 run_log_binomial_glm(outcome ~ exposed + stratum, data = data)
+
+
+x <- expand.grid(
+  relative_risk_exposed = 1,
+  n = c(100, 200, 500),
+  relative_risk_stratum_1 = c(2, 3)
+)[, c(1, 3, 2)]
+x$x1 <- compute_risk(
+  1, 1,
+  risk_given_unexposed_stratum_2,
+  x$relative_risk_exposed,
+  x$relative_risk_stratum_1
+)
+x$x2 <- compute_risk(
+  0, 1,
+  risk_given_unexposed_stratum_2,
+  x$relative_risk_exposed,
+  x$relative_risk_stratum_1
+)
+x$x3 <- compute_risk(
+  1, 2,
+  risk_given_unexposed_stratum_2,
+  x$relative_risk_exposed,
+  x$relative_risk_stratum_1
+)
+x$x4 <- compute_risk(
+  0, 2,
+  risk_given_unexposed_stratum_2,
+  x$relative_risk_exposed,
+  x$relative_risk_stratum_1
+)
+
+x <- expand.grid(
+  relative_risk_exposed = 2,
+  n = c(100, 200, 500),
+  relative_risk_stratum_1 = c(2, 1.5)
+)[, c(1, 3, 2)]
+x$x1 <- compute_risk(
+  1, 1,
+  risk_given_unexposed_stratum_2,
+  x$relative_risk_exposed,
+  x$relative_risk_stratum_1
+)
+x$x2 <- compute_risk(
+  0, 1,
+  risk_given_unexposed_stratum_2,
+  x$relative_risk_exposed,
+  x$relative_risk_stratum_1
+)
+x$x3 <- compute_risk(
+  1, 2,
+  risk_given_unexposed_stratum_2,
+  x$relative_risk_exposed,
+  x$relative_risk_stratum_1
+)
+x$x4 <- compute_risk(
+  0, 2,
+  risk_given_unexposed_stratum_2,
+  x$relative_risk_exposed,
+  x$relative_risk_stratum_1
+)
+
+x <- expand.grid(
+  relative_risk_exposed = 3,
+  n = c(100, 200, 500),
+  relative_risk_stratum_1 = c(1.5, 1.25)
+)[, c(1, 3, 2)]
+x$x1 <- compute_risk(
+  1, 1,
+  risk_given_unexposed_stratum_2,
+  x$relative_risk_exposed,
+  x$relative_risk_stratum_1
+)
+x$x2 <- compute_risk(
+  0, 1,
+  risk_given_unexposed_stratum_2,
+  x$relative_risk_exposed,
+  x$relative_risk_stratum_1
+)
+x$x3 <- compute_risk(
+  1, 2,
+  risk_given_unexposed_stratum_2,
+  x$relative_risk_exposed,
+  x$relative_risk_stratum_1
+)
+x$x4 <- compute_risk(
+  0, 2,
+  risk_given_unexposed_stratum_2,
+  x$relative_risk_exposed,
+  x$relative_risk_stratum_1
+)
+
+
 ```
