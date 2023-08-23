@@ -28,12 +28,25 @@
 #'   outcome ~ exposed + stratum, data = sim_data
 #' )
 run_log_binomial_glm <- function(model_formula, data) {
-  fit <- stats::glm(
-    model_formula, data = data, family = stats::binomial(link = log))
-  list(
-    est = exp(coef(fit)[[2]]),
-    ci = suppressMessages(exp(unname(stats::confint(fit)[2, ])))
-  )
+  fit <- tryCatch({
+    stats::glm(
+      model_formula, data = data,
+      family = stats::binomial(link = log)
+    )},
+    error = function(e) {
+      NULL
+    })
+  if (is.null(fit)) {
+    list(
+      est = NA,
+      ci = c(NA, NA)
+    )
+  } else {
+    list(
+      est = exp(coef(fit)[[2]]),
+      ci = suppressMessages(exp(unname(stats::confint(fit)[2, ])))
+    )
+  }
 }
 
 #' Run the Mantel-Haenszel procedure estimating the risk ratio associated with a (potentially stratified) exposure/treatment
