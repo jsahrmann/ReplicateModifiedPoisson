@@ -155,5 +155,22 @@ x$x4 <- compute_risk(
   x$relative_risk_stratum_1
 )
 
+z <- run_simulation(500, 0.5, 0.6, 0.4, 0.2, 2, 1.5)
+
+set.seed(123)
+
+zz <- furrr::future_map(
+  1:20,
+  ~ run_simulation(
+    100, 0.5, 0.6, 0.4, 0.2, 2, 1.5
+  ),
+  .options = furrr::furrr_options(seed = TRUE)
+)
+
+get_result_by_approach(zz, "ci", "poisson_glm")
+get_result_by_approach(zz, "est", "log_binomial_glm")
+
+report_relative_bias_risk_ratio(zz, 2)
+report_coverage_risk_ratio(zz, 2)
 
 ```
